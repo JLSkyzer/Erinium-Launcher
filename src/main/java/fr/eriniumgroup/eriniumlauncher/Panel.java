@@ -10,25 +10,11 @@ import fr.theshark34.swinger.colored.SColoredBar;
 import fr.theshark34.swinger.event.SwingerEvent;
 import fr.theshark34.swinger.event.SwingerEventListener;
 import fr.theshark34.swinger.textured.STexturedButton;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.Scene;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
-import javafx.stage.Stage;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.BorderUIResource;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -48,9 +34,6 @@ public class Panel extends JPanel implements SwingerEventListener {
     public static JLabel updaterInfo = new JLabel();
     public static SColoredBar progressBar = new SColoredBar(new Color(255, 255, 255), new Color(45, 85, 41));
     public static JLabel barLabel = new JLabel();
-
-    ScriptEngineManager manager = new ScriptEngineManager();
-    ScriptEngine engine = manager.getEngineByName("JavaScript");
 
     public Panel() throws IOException, BadLocationException {
         this.setLayout(null);
@@ -98,19 +81,6 @@ public class Panel extends JPanel implements SwingerEventListener {
         name.setForeground(Color.white);
         name.setHorizontalAlignment(JLabel.CENTER);
         this.add(name);
-
-        /*JEditorPane editorPane = new JEditorPane();
-        editorPane.setEditable(false);
-        editorPane.setContentType("text/html");
-        editorPane.setText("<p>Ceci est du texte HTML.</p>");
-
-        // Créez un kit éditeur HTML pour gérer le texte enrichi
-        HTMLEditorKit kit = new HTMLEditorKit();
-        editorPane.setEditorKit(kit);
-
-        // Créez un document HTML
-        javax.swing.text.Document doc = kit.createDefaultDocument();
-        editorPane.setDocument(doc);*/
 
         JPanel newspanel = new JPanel(new GridLayout());
         newspanel.setLayout(new BoxLayout(newspanel, BoxLayout.Y_AXIS));
@@ -174,9 +144,10 @@ public class Panel extends JPanel implements SwingerEventListener {
             newspanel.add(infomessage);
             newspanel.add(Box.createRigidArea(new Dimension(0, 5)));
             newspanel.add(getmessage);
-            newspanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+            newspanel.add(Box.createRigidArea(new Dimension(0, 5)));
             newspanel.add(separator);
-            newspanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            newspanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
 
             scrollPane.revalidate();
