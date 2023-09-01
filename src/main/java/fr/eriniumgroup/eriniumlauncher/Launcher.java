@@ -1,6 +1,8 @@
 package fr.eriniumgroup.eriniumlauncher;
 
+import com.sun.jdi.event.StepEvent;
 import fr.flowarg.flowupdater.FlowUpdater;
+import fr.flowarg.flowupdater.download.Step;
 import fr.flowarg.flowupdater.download.json.ExternalFile;
 import fr.flowarg.flowupdater.utils.ModFileDeleter;
 import fr.flowarg.flowupdater.utils.UpdaterOptions;
@@ -13,12 +15,15 @@ import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
 import fr.theshark34.openlauncherlib.minecraft.*;
 import fr.theshark34.openlauncherlib.util.CrashReporter;
+import fr.theshark34.swinger.Swinger;
+import javafx.scene.layout.Pane;
 
+import javax.swing.text.BadLocationException;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.EventListener;
 
 import static fr.eriniumgroup.eriniumlauncher.Frame.getImage;
 import static fr.eriniumgroup.eriniumlauncher.Frame.instance;
@@ -31,7 +36,7 @@ public class Launcher {
     private static CrashReporter reporter = new CrashReporter(String.valueOf(crashFile), crashFile);
     public static AuthInfos authInfos;
 
-    public static void auth() throws MicrosoftAuthenticationException, IOException, AWTException {
+    public static void auth() throws MicrosoftAuthenticationException, IOException, AWTException, BadLocationException {
         Connect.microsoft.disable();
         Connect.info.setForeground(Color.green);
         Connect.info.setText("Connexion en cours...");
@@ -46,7 +51,6 @@ public class Launcher {
             Frame.getSaver().set("refresh_token", result.getRefreshToken());
             authInfos = new AuthInfos(result.getProfile().getName(), result.getAccessToken(), result.getProfile().getId());
         }
-        Panel.startWebView();
         instance.setContentPane(new Panel());
         instance.revalidate();
         Connect.microsoft.enable();
@@ -54,7 +58,7 @@ public class Launcher {
         displayTray("Erinium Launcher", "Bienvenue " + authInfos.getUsername() + " !");
     }
 
-    public static void directauth() throws MicrosoftAuthenticationException, IOException, AWTException {
+    public static void directauth() throws MicrosoftAuthenticationException, IOException, AWTException, BadLocationException {
         Connect.microsoft.disable();
         Connect.info.setText("Connexion en cours...");
         MicrosoftAuthenticator microsoftAuthenticator = new MicrosoftAuthenticator();
@@ -64,7 +68,6 @@ public class Launcher {
             result = microsoftAuthenticator.loginWithRefreshToken(refresh_token);
             authInfos = new AuthInfos(result.getProfile().getName(), result.getAccessToken(), result.getProfile().getId());
             // connexion réussi donc connexion automatique
-            Panel.startWebView();
             instance.setContentPane(new Panel());
             instance.revalidate();
             displayTray("Erinium Launcher", "Bienvenue " + authInfos.getUsername() + " !");
@@ -94,6 +97,23 @@ public class Launcher {
         Collection<ExternalFile> externalFile = ExternalFile.getExternalFilesFromJson("https://erinium.000webhostapp.com/updater.php");
 
         FlowUpdater updater = new FlowUpdater.FlowUpdaterBuilder().withVanillaVersion(vanillaVersion).withUpdaterOptions(options).withModLoaderVersion(version).withExternalFiles(externalFile).build();
+        Thread t = new Thread(){
+            private int val;
+            private int max;
+            @Override
+            public void run(){
+                while (!this.isInterrupted()){
+                    val = (int) (updater.getDownloadList().getDownloadInfo().getDownloadedBytes() / 1000);
+                    max = (int) (updater.getDownloadList().getDownloadInfo().getTotalToDownloadBytes() / 1000);
+
+                    Panel.progressBar.setMaximum(max);
+                    Panel.progressBar.setValue(val);
+
+                    Panel.barLabel.setText("Telechargement des fichier : " + updater.getDownloadList().getDownloadInfo().getDownloadedFiles() + " / " + updater.getDownloadList().getDownloadInfo().getTotalToDownloadFiles());
+                }
+            }
+        };
+        t.start();
         updater.update(path);
     }
 

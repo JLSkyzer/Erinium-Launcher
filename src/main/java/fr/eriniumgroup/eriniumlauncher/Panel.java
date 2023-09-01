@@ -1,6 +1,12 @@
 package fr.eriniumgroup.eriniumlauncher;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import fr.eriniumgroup.eriniumlauncher.utils.GetJsonObjetUrl;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
+import fr.theshark34.swinger.colored.SColoredBar;
 import fr.theshark34.swinger.event.SwingerEvent;
 import fr.theshark34.swinger.event.SwingerEventListener;
 import fr.theshark34.swinger.textured.STexturedButton;
@@ -13,8 +19,16 @@ import javafx.stage.Stage;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.BorderUIResource;
 import javax.swing.plaf.basic.BasicScrollBarUI;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,15 +44,20 @@ public class Panel extends JPanel implements SwingerEventListener {
     private STexturedButton home = new STexturedButton(getBufferedImage("home.png"), getBufferedImage("home_hover.png"));
     private STexturedButton logout = new STexturedButton(getBufferedImage("logout.png"), getBufferedImage("logout_hover.png"));
     private List<Component> sideBtn = new ArrayList<>();
-    public static JFXPanel jfxPanel = new JFXPanel();
-    private static WebView webView;
-    private static WebEngine webEngine;
+    private JScrollPane scrollPane = new JScrollPane();
+    public static JLabel updaterInfo = new JLabel();
+    public static SColoredBar progressBar = new SColoredBar(new Color(255, 255, 255), new Color(45, 85, 41));
+    public static JLabel barLabel = new JLabel();
 
     ScriptEngineManager manager = new ScriptEngineManager();
     ScriptEngine engine = manager.getEngineByName("JavaScript");
 
-    public Panel() throws IOException {
+    public Panel() throws IOException, BadLocationException {
         this.setLayout(null);
+
+        updaterInfo.setLocation(40, 20);
+        updaterInfo.setForeground(Color.RED);
+        this.add(updaterInfo);
 
         close.setBounds(Frame.getInstance().getWidth() - 45, 0, 40, 40);
         close.addEventListener(this);
@@ -80,13 +99,101 @@ public class Panel extends JPanel implements SwingerEventListener {
         name.setHorizontalAlignment(JLabel.CENTER);
         this.add(name);
 
-        this.add(jfxPanel);
-        jfxPanel.setBounds(127, 50, 468, 390);
+        /*JEditorPane editorPane = new JEditorPane();
+        editorPane.setEditable(false);
+        editorPane.setContentType("text/html");
+        editorPane.setText("<p>Ceci est du texte HTML.</p>");
+
+        // Créez un kit éditeur HTML pour gérer le texte enrichi
+        HTMLEditorKit kit = new HTMLEditorKit();
+        editorPane.setEditorKit(kit);
+
+        // Créez un document HTML
+        javax.swing.text.Document doc = kit.createDefaultDocument();
+        editorPane.setDocument(doc);*/
+
+        JPanel newspanel = new JPanel(new GridLayout());
+        newspanel.setLayout(new BoxLayout(newspanel, BoxLayout.Y_AXIS));
+        newspanel.setSize(450, 360);
+        newspanel.setBackground(hexToColor("22387A"));
+
+        //setBounds(137, 50, 460, 390)
+        scrollPane.setBounds(127, 50, 480, 360);
+        scrollPane.setViewportView(newspanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(10);
+        scrollPane.setMinimumSize(new Dimension(480, 360));
+        scrollPane.setPreferredSize(new Dimension(480, 360));
+        scrollPane.setFocusable(true);
+        scrollPane.setWheelScrollingEnabled(true);
+        scrollPane.getVerticalScrollBar().setUI(new MyCustomScrollbarUI(hexToColor("0B2163"), hexToColor("22387A")));
+        scrollPane.setBorder(null);
 
         sideBtn.add(home);
         sideBtn.add(settings);
         sideBtn.add(logout);
+
+        Gson gson = new Gson();
+        JsonParser parser = new JsonParser();
+        JsonArray jsonArray = parser.parse(GetJsonObjetUrl.getNews().toString()).getAsJsonArray();
+
+        for (int i = jsonArray.size() - 1; i >= 0; i--) {
+            JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+
+            String date = jsonObject.get("date").getAsString();
+            String autor = jsonObject.get("name").getAsString();
+            String title = jsonObject.get("title").getAsString();
+            String message = jsonObject.get("message").getAsString();
+
+            /*doc.insertString(doc.getLength(), title, null);*/
+            JLabel titlemessage = new JLabel(title);
+            titlemessage.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 26));
+            titlemessage.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel infomessage = new JLabel("<html><p style=\"width:350px\"" + "align='center'>" + "par " + autor + " le " + date + "</p></html>");
+            infomessage.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
+            /*infomessage.setSize(newspanel.getWidth(), infomessage.getPreferredSize().height);*/
+            infomessage.setHorizontalAlignment(JLabel.CENTER);
+            infomessage.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel getmessage = new JLabel("<html><p style=\"width:350px\"" + "align='center'>" + message + "</p></html>");
+            getmessage.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+            getmessage.setSize(newspanel.getWidth(), getmessage.getPreferredSize().height);
+            getmessage.setHorizontalAlignment(JLabel.CENTER);
+            getmessage.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+            separator.setBackground(Color.white);
+            separator.setForeground(Color.white);
+
+            titlemessage.setForeground(Color.white);
+            infomessage.setForeground(Color.white);
+            getmessage.setForeground(Color.white);
+
+            newspanel.add(titlemessage);
+            newspanel.add(infomessage);
+            newspanel.add(Box.createRigidArea(new Dimension(0, 5)));
+            newspanel.add(getmessage);
+            newspanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            newspanel.add(separator);
+            newspanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+
+            scrollPane.revalidate();
+        }
+        this.add(scrollPane);
+
+        progressBar.setBounds(scrollPane.getX(), scrollPane.getY() + scrollPane.getHeight() + 25, scrollPane.getWidth(), 10);
+        this.add(progressBar);
+
+        barLabel.setBounds(progressBar.getX(), progressBar.getY() - 20, progressBar.getWidth(), 16);
+        barLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
+        barLabel.setText("Clique sur jouer !");
+        barLabel.setForeground(Color.white);
+        barLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        this.add(barLabel);
     }
+
     @Override
     public void paintComponent (Graphics g){
         super.paintComponent(g);
@@ -103,23 +210,6 @@ public class Panel extends JPanel implements SwingerEventListener {
 
         g.setColor(getRGBA(47, 47, 47, 250));
         g.fillRoundRect(sideBtn.get(0).getX(), sideBtn.get(0).getY(), 60, sideBtn.get(sideBtn.size() - 1).getY() - sideBtn.get(0).getY() + 60, 20, 20);
-    }
-
-    public static void startWebView(){
-        /*SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-            @Override
-            protected Void doInBackground() throws Exception {
-                Platform.runLater(() -> {
-                    webView = new WebView();
-                    Scene scene = new Scene(webView);
-                    jfxPanel.setScene(scene);
-                    webView.getEngine().load("https://jlskyzer-home.netlify.app/news/news.html");
-                    //webView.getEngine().reload();
-                });
-                return null;
-            }
-        };
-        worker.execute();*/
     }
 
     @Override
@@ -174,13 +264,27 @@ public class Panel extends JPanel implements SwingerEventListener {
         }
     }
 
-    private static class MyCustomScrollbarUI extends BasicScrollBarUI {
+    class MyCustomScrollbarUI extends BasicScrollBarUI {
+        private Color thumbColor;
+        private Color trackColor;
+
+        public MyCustomScrollbarUI(Color thumbColor, Color trackColor) {
+            this.thumbColor = thumbColor;
+            this.trackColor = trackColor;
+        }
+
         @Override
         protected void configureScrollBarColors() {
-            // Personnalisez ici les couleurs de la barre de défilement
-            thumbColor = hexToColor("22387A");
-            // Couleur du "pouce" de la barre
-            trackColor = hexToColor("0B2163"); // Couleur de la "piste" de la barre
+            // Définissez les couleurs personnalisées pour le pouce (thumb) et la piste (track)
+            thumbColor = thumbColor != null ? thumbColor : super.thumbColor;
+            trackColor = trackColor != null ? trackColor : super.trackColor;
+
+            super.thumbColor = thumbColor;
+            super.thumbHighlightColor = thumbColor.brighter();
+            super.thumbDarkShadowColor = thumbColor.darker();
+            super.thumbLightShadowColor = thumbColor.brighter().brighter();
+            super.trackColor = trackColor;
+            super.trackHighlightColor = trackColor;
         }
     }
 
@@ -210,6 +314,14 @@ public class Panel extends JPanel implements SwingerEventListener {
         } else {
             throw new IllegalArgumentException("Format de couleur hexadécimale non pris en charge : " + hex);
         }
+    }
+
+    public SColoredBar getProgressBar(){
+        return progressBar;
+    }
+
+    public static void setBarLabelText(String text){
+        barLabel.setText(text);
     }
 
     public static STexturedButton close;

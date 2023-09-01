@@ -11,6 +11,7 @@ import fr.theshark34.swinger.textured.STexturedButton;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -140,8 +141,9 @@ public class Settings extends JPanel implements SwingerEventListener {
             try {
                 instance.setContentPane(new Panel());
                 instance.revalidate();
-                Panel.startWebView();
             } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (BadLocationException e) {
                 throw new RuntimeException(e);
             }
         } else if (swingerEvent.getSource() == close) {

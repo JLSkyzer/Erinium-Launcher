@@ -3,6 +3,7 @@ package fr.eriniumgroup.eriniumlauncher.utils;
 import fr.eriniumgroup.eriniumlauncher.Launcher;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
 
+import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.io.IOException;
 
@@ -14,6 +15,8 @@ public class MicrosoftThread implements  Runnable{
         } catch (MicrosoftAuthenticationException | IOException e) {
             Launcher.getReporter().catchError(e, "Impossible de se connecter");
         } catch (AWTException e) {
+            throw new RuntimeException(e);
+        } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }
     }

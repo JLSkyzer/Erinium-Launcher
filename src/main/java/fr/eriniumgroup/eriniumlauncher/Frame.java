@@ -6,6 +6,7 @@ import fr.theshark34.swinger.util.WindowMover;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -34,7 +35,7 @@ public class Frame extends JFrame {
         this.setVisible(true);
     }
 
-    public static void main(String[] args) throws IOException, MicrosoftAuthenticationException, AWTException {
+    public static void main(String[] args) throws IOException, MicrosoftAuthenticationException, AWTException, BadLocationException {
         Launcher.crashFile.mkdirs();
         if(!ramFile.exists()){
             ramFile.createNewFile();
