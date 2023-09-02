@@ -192,7 +192,7 @@ public class Panel extends JPanel implements SwingerEventListener {
         g.drawString("Erinium Launcher", 5, 30);
 
         g.setColor(getRGBA(47, 47, 47, 250));
-        g.fillRoundRect(sideBtn.get(0).getX(), sideBtn.get(0).getY(), 60, sideBtn.get(sideBtn.size() - 1).getY() - sideBtn.get(0).getY() + 60, 20, 20);
+        g.fillRoundRect(sideBtn.get(0).getX(), sideBtn.get(0).getY(), 60, sideBtn.get(sideBtn.size() - 1).getY() - sideBtn.get(0).getY() + 62, 20, 20);
     }
 
     @Override
