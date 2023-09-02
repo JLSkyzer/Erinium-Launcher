@@ -15,7 +15,6 @@ import fr.theshark34.swinger.event.SwingerEventListener;
 import fr.theshark34.swinger.textured.STexturedButton;
 
 import javax.swing.*;
-import javax.swing.border.AbstractBorder;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.text.BadLocationException;
 import java.awt.*;

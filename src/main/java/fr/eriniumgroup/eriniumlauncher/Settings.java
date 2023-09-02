@@ -191,18 +191,3 @@ public class Settings extends JPanel implements SwingerEventListener {
         }
     }
 }
-
-
-/*public void save()
-{
-    if (this.frame == null) return;
-
-    try(BufferedWriter bw = Files.newBufferedWriter(this.file, StandardCharsets.UTF_8))
-    {
-        bw.write(String.valueOf(this.frame.getSelectedIndex()));
-    } catch (IOException e)
-    {
-        System.err.println("[OpenLauncherLib] WARNING: Can't save ram : " + e);
-    }
-}
-*/

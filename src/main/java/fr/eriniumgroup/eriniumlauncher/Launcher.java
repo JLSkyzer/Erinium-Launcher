@@ -1,7 +1,5 @@
 package fr.eriniumgroup.eriniumlauncher;
 
-import com.sun.jdi.event.StepEvent;
-import fr.flowarg.flowlogger.ILogger;
 import fr.flowarg.flowupdater.FlowUpdater;
 import fr.flowarg.flowupdater.download.DownloadList;
 import fr.flowarg.flowupdater.download.IProgressCallback;
@@ -19,16 +17,13 @@ import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
 import fr.theshark34.openlauncherlib.minecraft.*;
 import fr.theshark34.openlauncherlib.util.CrashReporter;
 import fr.theshark34.swinger.Swinger;
-import javafx.application.Platform;
-import javafx.scene.layout.Pane;
 
-import javax.security.auth.callback.Callback;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.EventListener;
 
 import static fr.eriniumgroup.eriniumlauncher.Frame.getImage;
 import static fr.eriniumgroup.eriniumlauncher.Frame.instance;
@@ -150,13 +145,9 @@ public class Launcher {
         t.start();
     }
 
-    public static void crack(){
-        authInfos = new AuthInfos("JLSkyzer", "464646495", "qfq4f6q4f6q4f");
-    }
     public static void launch() throws Exception {
         NoFramework noFramework = new NoFramework(path, authInfos, GameFolder.FLOW_UPDATER);
         noFramework.getAdditionalVmArgs().add("-Xmx" + Settings.readRam() + "G");
-        //noFramework.launch("1.16.5", "36.2.39", NoFramework.ModLoader.FORGE).waitFor();
         Process p = noFramework.launch("1.16.5", "36.2.39", NoFramework.ModLoader.FORGE);
 
         try {
