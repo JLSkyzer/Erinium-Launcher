@@ -1,5 +1,8 @@
 package fr.eriniumgroup.eriniumlauncher;
 
+import club.minnced.discord.rpc.DiscordEventHandlers;
+import club.minnced.discord.rpc.DiscordRPC;
+import club.minnced.discord.rpc.DiscordRichPresence;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
 import fr.theshark34.openlauncherlib.util.Saver;
 import fr.theshark34.swinger.util.WindowMover;
@@ -46,6 +49,22 @@ public class Frame extends JFrame {
 
         instance = new Frame();
         Launcher.directauth();
+
+        launchRPC();
+    }
+
+    public static void launchRPC(){
+        final DiscordRPC lib = DiscordRPC.INSTANCE;
+        final String appID = "929797081307181078";
+        final DiscordEventHandlers handlers = new DiscordEventHandlers();
+        lib.Discord_Initialize(appID, handlers, true, "");
+        DiscordRichPresence discordRichPresence = new DiscordRichPresence();
+        discordRichPresence.startTimestamp = System.currentTimeMillis() / 1000;
+        discordRichPresence.details = "Joue à EriniumLauncher";
+        discordRichPresence.state = Launcher.authInfos.getUsername();
+        discordRichPresence.largeImageKey = "erinium";
+
+        lib.Discord_UpdatePresence(discordRichPresence);
     }
 
     public static Image getImage(String fichier) throws IOException{

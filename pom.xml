@@ -67,10 +67,21 @@
             <artifactId>flatlaf</artifactId>
             <version>3.2</version>
         </dependency>
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>java-discord-rpc</artifactId>
+            <version>2.0.1</version>
+        </dependency>
 
     </dependencies>
     
     <repositories>
+        <repository>
+            <id>jcenter</id>
+            <name>jcenter-binary</name>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
+
         <repository>
             <id>litarvan</id>
             <url>https://litarvan.github.io/maven</url>
