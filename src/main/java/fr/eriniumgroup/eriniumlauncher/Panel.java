@@ -1,5 +1,8 @@
 package fr.eriniumgroup.eriniumlauncher;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.ui.FlatLineBorder;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -12,6 +15,7 @@ import fr.theshark34.swinger.event.SwingerEventListener;
 import fr.theshark34.swinger.textured.STexturedButton;
 
 import javax.swing.*;
+import javax.swing.border.AbstractBorder;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
@@ -25,18 +29,20 @@ import static fr.eriniumgroup.eriniumlauncher.Frame.*;
 public class Panel extends JPanel implements SwingerEventListener {
 
     private Image background = getImage("launcher.png");
-    private STexturedButton play = new STexturedButton(getBufferedImage("play.png"), getBufferedImage("play_hover.png"));
+    public static STexturedButton play;
     private STexturedButton settings = new STexturedButton(getBufferedImage("settings.png"), getBufferedImage("settings_hover.png"));
     private STexturedButton home = new STexturedButton(getBufferedImage("home.png"), getBufferedImage("home_hover.png"));
     private STexturedButton logout = new STexturedButton(getBufferedImage("logout.png"), getBufferedImage("logout_hover.png"));
     private List<Component> sideBtn = new ArrayList<>();
     private JScrollPane scrollPane = new JScrollPane();
     public static JLabel updaterInfo = new JLabel();
-    public static SColoredBar progressBar = new SColoredBar(new Color(255, 255, 255), new Color(45, 85, 41));
+    public static SColoredBar progressBar = new SColoredBar(new Color(255, 255, 255), hexToColor("0B2163"));
     public static JLabel barLabel = new JLabel();
+    public static boolean isGameLaunch = false;
 
     public Panel() throws IOException, BadLocationException {
         this.setLayout(null);
+        FlatLightLaf.setup();
 
         updaterInfo.setLocation(40, 20);
         updaterInfo.setForeground(Color.RED);
@@ -116,9 +122,10 @@ public class Panel extends JPanel implements SwingerEventListener {
             String message = jsonObject.get("message").getAsString();
 
             /*doc.insertString(doc.getLength(), title, null);*/
-            JLabel titlemessage = new JLabel(title);
+            JLabel titlemessage = new JLabel("<html><p style=\"width:350px\"" + "align='center'>" + title + "</p></html>");
             titlemessage.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 26));
             titlemessage.setAlignmentX(Component.CENTER_ALIGNMENT);
+            titlemessage.setHorizontalAlignment(JLabel.CENTER);
 
             JLabel infomessage = new JLabel("<html><p style=\"width:350px\"" + "align='center'>" + "par " + autor + " le " + date + "</p></html>");
             infomessage.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
@@ -128,38 +135,43 @@ public class Panel extends JPanel implements SwingerEventListener {
 
             JLabel getmessage = new JLabel("<html><p style=\"width:350px\"" + "align='center'>" + message + "</p></html>");
             getmessage.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
-            getmessage.setSize(newspanel.getWidth(), getmessage.getPreferredSize().height);
+            //getmessage.setSize(newspanel.getWidth(), getmessage.getPreferredSize().height);
             getmessage.setHorizontalAlignment(JLabel.CENTER);
             getmessage.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
-            separator.setBackground(Color.white);
-            separator.setForeground(Color.white);
+            JPanel separator = new JPanel();
+            separator.setBackground(Color.WHITE);
+            separator.setSize(new Dimension(newspanel.getWidth(), 5));
+            separator.setMaximumSize(new Dimension(newspanel.getWidth(), 5));
+            separator.setBorder( new FlatLineBorder( new Insets( 0, 0, 0, 0 ), Color.white, 2, 10));
 
             titlemessage.setForeground(Color.white);
             infomessage.setForeground(Color.white);
             getmessage.setForeground(Color.white);
 
+            JPanel tempPanel = new JPanel(new GridLayout());
+            tempPanel.setLayout(new BoxLayout(tempPanel, BoxLayout.Y_AXIS));
+
             newspanel.add(titlemessage);
             newspanel.add(infomessage);
             newspanel.add(Box.createRigidArea(new Dimension(0, 5)));
             newspanel.add(getmessage);
-
             newspanel.add(Box.createRigidArea(new Dimension(0, 5)));
             newspanel.add(separator);
             newspanel.add(Box.createRigidArea(new Dimension(0, 5)));
-
 
             scrollPane.revalidate();
         }
         this.add(scrollPane);
 
         progressBar.setBounds(scrollPane.getX(), scrollPane.getY() + scrollPane.getHeight() + 25, scrollPane.getWidth(), 10);
+        progressBar.putClientProperty(FlatClientProperties.STYLE, "arc: 20");
+        progressBar.setValue(0);
         this.add(progressBar);
 
-        barLabel.setBounds(progressBar.getX(), progressBar.getY() - 20, progressBar.getWidth(), 16);
+        barLabel.setBounds(progressBar.getX(), progressBar.getY() - 22, progressBar.getWidth(), 20);
         barLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
-        barLabel.setText("Clique sur jouer !");
+        //barLabel.setText("Clique sur jouer !");
         barLabel.setForeground(Color.white);
         barLabel.setHorizontalAlignment(SwingConstants.CENTER);
         this.add(barLabel);
@@ -186,18 +198,16 @@ public class Panel extends JPanel implements SwingerEventListener {
     @Override
     public void onEvent(SwingerEvent swingerEvent) {
         if (swingerEvent.getSource() == play) {
+            play.disable();
             if(Launcher.authInfos != null){
                 Settings.ramSelector.save();
-                try {
-                    Launcher.update();
-                } catch (Exception e) {
-                    Launcher.getReporter().catchError(e, "Impossible de mettre à jour le launcher");
-                }
-
-                try {
-                    Launcher.launch();
-                } catch (Exception e) {
-                    Launcher.getReporter().catchError(e, "Impossible de lancer le jeu");
+                if(!isGameLaunch){
+                    isGameLaunch = true;
+                    try {
+                        Launcher.update();
+                    } catch (Exception e) {
+                        Launcher.getReporter().catchError(e, "Impossible de mettre à jour le launcher");
+                    }
                 }
             }else{
                 final JFrame parent = new JFrame();
@@ -233,6 +243,10 @@ public class Panel extends JPanel implements SwingerEventListener {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public static void resetbarlabel(){
+        barLabel.setText("Clique sur jouer !");
     }
 
     class MyCustomScrollbarUI extends BasicScrollBarUI {
@@ -310,6 +324,15 @@ public class Panel extends JPanel implements SwingerEventListener {
     static {
         try {
             hide = new STexturedButton(getBufferedImage("hide.png"), getBufferedImage("hide_hover.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static {
+        try {
+            play = new STexturedButton(getBufferedImage("play.png"), getBufferedImage("play_hover.png"));
+            play.setTextureDisabled(getImage("play_disable.png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

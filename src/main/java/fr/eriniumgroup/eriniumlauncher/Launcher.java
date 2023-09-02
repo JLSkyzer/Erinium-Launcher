@@ -1,7 +1,10 @@
 package fr.eriniumgroup.eriniumlauncher;
 
 import com.sun.jdi.event.StepEvent;
+import fr.flowarg.flowlogger.ILogger;
 import fr.flowarg.flowupdater.FlowUpdater;
+import fr.flowarg.flowupdater.download.DownloadList;
+import fr.flowarg.flowupdater.download.IProgressCallback;
 import fr.flowarg.flowupdater.download.Step;
 import fr.flowarg.flowupdater.download.json.ExternalFile;
 import fr.flowarg.flowupdater.utils.ModFileDeleter;
@@ -16,8 +19,10 @@ import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
 import fr.theshark34.openlauncherlib.minecraft.*;
 import fr.theshark34.openlauncherlib.util.CrashReporter;
 import fr.theshark34.swinger.Swinger;
+import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 
+import javax.security.auth.callback.Callback;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.io.*;
@@ -53,6 +58,7 @@ public class Launcher {
         }
         instance.setContentPane(new Panel());
         instance.revalidate();
+        Panel.resetbarlabel();
         Connect.microsoft.enable();
         Connect.info.setText("");
         displayTray("Erinium Launcher", "Bienvenue " + authInfos.getUsername() + " !");
@@ -70,6 +76,7 @@ public class Launcher {
             // connexion réussi donc connexion automatique
             instance.setContentPane(new Panel());
             instance.revalidate();
+            Panel.resetbarlabel();
             displayTray("Erinium Launcher", "Bienvenue " + authInfos.getUsername() + " !");
         }else{
             Connect.microsoft.enable();
@@ -88,7 +95,7 @@ public class Launcher {
         Connect.info.setForeground(Color.green);
     }
 
-    public static void update() throws Exception, IOException {
+    public static void update() throws Exception {
 
         VanillaVersion vanillaVersion = new VanillaVersion.VanillaVersionBuilder().withName("1.16.5").build();
         UpdaterOptions options = new UpdaterOptions.UpdaterOptionsBuilder().build();
@@ -96,25 +103,51 @@ public class Launcher {
         AbstractForgeVersion version = new ForgeVersionBuilder(ForgeVersionBuilder.ForgeVersionType.NEW).withFileDeleter(new ModFileDeleter(true)).withForgeVersion("36.2.39").withMods("https://erinium.000webhostapp.com/updater.php").build();
         Collection<ExternalFile> externalFile = ExternalFile.getExternalFilesFromJson("https://erinium.000webhostapp.com/updater.php");
 
-        FlowUpdater updater = new FlowUpdater.FlowUpdaterBuilder().withVanillaVersion(vanillaVersion).withUpdaterOptions(options).withModLoaderVersion(version).withExternalFiles(externalFile).build();
-        Thread t = new Thread(){
-            private int val;
-            private int max;
+        FlowUpdater updater = new FlowUpdater.FlowUpdaterBuilder().withVanillaVersion(vanillaVersion).withUpdaterOptions(options).withModLoaderVersion(version).withExternalFiles(externalFile).withProgressCallback(new IProgressCallback() {
+
+            Step etape;
+            int currfile;
+            int maxfile;
+            int val;
+            int max;
+
             @Override
-            public void run(){
-                while (!this.isInterrupted()){
-                    val = (int) (updater.getDownloadList().getDownloadInfo().getDownloadedBytes() / 1000);
-                    max = (int) (updater.getDownloadList().getDownloadInfo().getTotalToDownloadBytes() / 1000);
+            public void update(DownloadList.DownloadInfo info) {
+                IProgressCallback.super.update(info);
 
-                    Panel.progressBar.setMaximum(max);
-                    Panel.progressBar.setValue(val);
+                val = (int) (info.getDownloadedBytes() / 1000);
+                max = (int) (info.getTotalToDownloadBytes() / 1000);
+                currfile = info.getDownloadedFiles();
+                maxfile = info.getTotalToDownloadFiles();
 
-                    Panel.barLabel.setText("Telechargement des fichier : " + updater.getDownloadList().getDownloadInfo().getDownloadedFiles() + " / " + updater.getDownloadList().getDownloadInfo().getTotalToDownloadFiles());
+                Panel.progressBar.setMaximum(max);
+                Panel.progressBar.setValue(val);
+
+                Panel.barLabel.setText("Telechargement des fichiers : " + currfile + " / " + maxfile + " (" + Swinger.percentage(val, max) + "%)");
+
+                Panel.progressBar.revalidate();
+                Panel.barLabel.revalidate();
+            }
+        }).build();
+
+        Thread t = new Thread(){
+            @Override
+            public void run() {
+                try {
+                    updater.update(path);
+                } catch (Exception e) {
+                    System.out.println(e);
                 }
+                Panel.barLabel.setText("Lancement du jeu...");
+                try {
+                    launch();
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+                super.run();
             }
         };
         t.start();
-        updater.update(path);
     }
 
     public static void crack(){
@@ -123,7 +156,20 @@ public class Launcher {
     public static void launch() throws Exception {
         NoFramework noFramework = new NoFramework(path, authInfos, GameFolder.FLOW_UPDATER);
         noFramework.getAdditionalVmArgs().add("-Xmx" + Settings.readRam() + "G");
-        noFramework.launch("1.16.5", "36.2.39", NoFramework.ModLoader.FORGE);
+        //noFramework.launch("1.16.5", "36.2.39", NoFramework.ModLoader.FORGE).waitFor();
+        Process p = noFramework.launch("1.16.5", "36.2.39", NoFramework.ModLoader.FORGE);
+
+        try {
+            p.waitFor();
+        } catch (InterruptedException e) {
+            System.out.println(e);
+        }
+        System.out.println("Jeu fermée");
+        Panel.play.enable();
+        instance.setContentPane(new Panel());
+        instance.revalidate();
+        Panel.isGameLaunch = false;
+        Panel.resetbarlabel();
     }
 
     public static CrashReporter getReporter() {
