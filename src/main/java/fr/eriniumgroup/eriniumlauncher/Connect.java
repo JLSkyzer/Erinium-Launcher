@@ -14,6 +14,7 @@ import static fr.eriniumgroup.eriniumlauncher.Panel.*;
 
 public class Connect extends JPanel implements SwingerEventListener {
     private Image background = getImage("launcher.png");
+    public static boolean popupEnable = false;
     public static STexturedButton microsoft;
     static {
         try {
@@ -79,13 +80,17 @@ public class Connect extends JPanel implements SwingerEventListener {
 
     @Override
     public void onEvent(SwingerEvent swingerEvent) {
-        if (swingerEvent.getSource() == microsoft){
-            Thread t = new Thread(new MicrosoftThread());
-            t.start();
-        } else if (swingerEvent.getSource() == close) {
-            System.exit(0);
-        } else if (swingerEvent.getSource() == hide) {
-            Frame.getInstance().setExtendedState(JFrame.ICONIFIED);
+        if (!popupEnable){
+            popupEnable = true;
+            microsoft.disable();
+            if (swingerEvent.getSource() == microsoft){
+                Thread t = new Thread(new MicrosoftThread());
+                t.start();
+            } else if (swingerEvent.getSource() == close) {
+                System.exit(0);
+            } else if (swingerEvent.getSource() == hide) {
+                Frame.getInstance().setExtendedState(JFrame.ICONIFIED);
+            }
         }
     }
 }

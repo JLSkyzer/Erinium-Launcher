@@ -37,7 +37,6 @@ public class Launcher {
     public static AuthInfos authInfos;
 
     public static void auth() throws MicrosoftAuthenticationException, IOException, AWTException, BadLocationException {
-        Connect.microsoft.disable();
         Connect.info.setForeground(Color.green);
         Connect.info.setText("Connexion en cours...");
         MicrosoftAuthenticator microsoftAuthenticator = new MicrosoftAuthenticator();
@@ -60,7 +59,6 @@ public class Launcher {
     }
 
     public static void directauth() throws MicrosoftAuthenticationException, IOException, AWTException, BadLocationException {
-        Connect.microsoft.disable();
         Connect.info.setText("Connexion en cours...");
         MicrosoftAuthenticator microsoftAuthenticator = new MicrosoftAuthenticator();
         final String refresh_token = Frame.getSaver().get("refresh_token");
