@@ -42,6 +42,9 @@ public class Frame extends JFrame {
         Launcher.crashFile.mkdirs();
         if(!ramFile.exists()){
             ramFile.createNewFile();
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(ramFile));
+            bufferedWriter.write("1");
+            bufferedWriter.close();
         }
         if (!saverFile.exists()){
             saverFile.createNewFile();
