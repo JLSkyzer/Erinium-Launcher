@@ -18,8 +18,11 @@ import fr.theshark34.openlauncherlib.minecraft.*;
 import fr.theshark34.openlauncherlib.util.CrashReporter;
 import fr.theshark34.swinger.Swinger;
 
+import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,7 +33,7 @@ import static fr.eriniumgroup.eriniumlauncher.Frame.instance;
 
 public class Launcher {
 
-    private static GameInfos gameInfos = new GameInfos("EriniumLauncher", new GameVersion("1.16.5", GameType.V1_13_HIGHER_FORGE), new GameTweak[]{GameTweak.FORGE});
+    private static GameInfos gameInfos = new GameInfos("Joblife", new GameVersion("1.20.1", GameType.V1_13_HIGHER_FORGE), new GameTweak[]{GameTweak.FORGE});
     private static Path path = gameInfos.getGameDir();
     public static File crashFile = new File(String.valueOf(path), "craches");
     private static CrashReporter reporter = new CrashReporter(String.valueOf(crashFile), crashFile);
@@ -55,7 +58,7 @@ public class Launcher {
         Panel.resetbarlabel();
         Connect.microsoft.enable();
         Connect.info.setText("");
-        displayTray("Erinium Launcher", "Bienvenue " + authInfos.getUsername() + " !");
+        displayTray("Joblife launcher", "Bienvenue " + authInfos.getUsername() + " !");
     }
 
     public static void directauth() throws MicrosoftAuthenticationException, IOException, AWTException, BadLocationException {
@@ -70,7 +73,7 @@ public class Launcher {
             instance.setContentPane(new Panel());
             instance.revalidate();
             Panel.resetbarlabel();
-            displayTray("Erinium Launcher", "Bienvenue " + authInfos.getUsername() + " !");
+            displayTray("Joblife launcher", "Bienvenue " + authInfos.getUsername() + " !");
         }else{
             Connect.microsoft.enable();
             Connect.info.setForeground(Color.RED);
@@ -90,11 +93,11 @@ public class Launcher {
 
     public static void update() throws Exception {
 
-        VanillaVersion vanillaVersion = new VanillaVersion.VanillaVersionBuilder().withName("1.16.5").build();
+        VanillaVersion vanillaVersion = new VanillaVersion.VanillaVersionBuilder().withName("1.20.1").build();
         UpdaterOptions options = new UpdaterOptions.UpdaterOptionsBuilder().build();
 
-        AbstractForgeVersion version = new ForgeVersionBuilder(ForgeVersionBuilder.ForgeVersionType.NEW).withFileDeleter(new ModFileDeleter(true)).withForgeVersion("36.2.39").withMods("https://erinium.000webhostapp.com/updater.php").build();
-        Collection<ExternalFile> externalFile = ExternalFile.getExternalFilesFromJson("https://erinium.000webhostapp.com/updater.php");
+        AbstractForgeVersion version = new ForgeVersionBuilder(ForgeVersionBuilder.ForgeVersionType.NEW).withFileDeleter(new ModFileDeleter(false)).withForgeVersion("47.2.20").withMods("https://eriniumadventure.fr/updater.php").build();
+        Collection<ExternalFile> externalFile = ExternalFile.getExternalFilesFromJson("https://eriniumadventure.fr/updater.php");
 
         FlowUpdater updater = new FlowUpdater.FlowUpdaterBuilder().withVanillaVersion(vanillaVersion).withUpdaterOptions(options).withModLoaderVersion(version).withExternalFiles(externalFile).withProgressCallback(new IProgressCallback() {
 
@@ -146,7 +149,8 @@ public class Launcher {
     public static void launch() throws Exception {
         NoFramework noFramework = new NoFramework(path, authInfos, GameFolder.FLOW_UPDATER);
         noFramework.getAdditionalVmArgs().add("-Xmx" + Settings.readRam() + "G");
-        Process p = noFramework.launch("1.16.5", "36.2.39", NoFramework.ModLoader.FORGE);
+        Process p = noFramework.launch("1.20.1", "47.2.20", NoFramework.ModLoader.FORGE);
+        instance.setVisible(false);
 
         try {
             p.waitFor();
@@ -170,21 +174,54 @@ public class Launcher {
     }
 
     public static void displayTray(String title, String message) throws AWTException, IOException {
+        if (SystemTray.isSupported()){
+            instance.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        }
+
         //Obtain only one instance of the SystemTray object
         SystemTray tray = SystemTray.getSystemTray();
 
         //If the icon is a file
-        Image image = getImage("icon.png");
+        Image image = getImage("img.png");
         //Alternative (if the icon is on the classpath):
         //Image image = Toolkit.getDefaultToolkit().createImage(getClass().getResource("icon.png"));
 
-        TrayIcon trayIcon = new TrayIcon(image, "Erinium icon");
+        TrayIcon trayIcon = new TrayIcon(image, "Joblife icon");
         //Let the system resize the image if needed
         trayIcon.setImageAutoSize(true);
         //Set tooltip text for the tray icon
         trayIcon.setToolTip("System tray");
-        tray.add(trayIcon);
+        //tray.add(trayIcon);
 
         trayIcon.displayMessage(title, message, TrayIcon.MessageType.INFO);
+
+        PopupMenu popupMenu = new PopupMenu();
+
+        MenuItem show = new MenuItem("Show");
+        show.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                instance.setVisible(true);
+            }
+        });
+        MenuItem exit = new MenuItem("Exit");
+        exit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+        popupMenu.add(show);
+        popupMenu.add(exit);
+
+        trayIcon.setPopupMenu(popupMenu);
+
+        try{
+            tray.remove(trayIcon);
+            tray.add(trayIcon);
+        }catch (AWTException e1){
+            e1.printStackTrace();
+        }
     }
 }

@@ -73,7 +73,7 @@ public class Connect extends JPanel implements SwingerEventListener {
         Font titleFont = new Font(Font.SANS_SERIF, Font.BOLD, 30);
         g.setColor(hexToColor("#BFCFFF"));
         g.setFont(titleFont);
-        g.drawString("Erinium Launcher", 5, 30);
+        g.drawString("Joblife Launcher", 5, 30);
 
         g.setColor(getRGBA(47, 47, 47, 200));
     }
@@ -87,7 +87,7 @@ public class Connect extends JPanel implements SwingerEventListener {
                 Thread t = new Thread(new MicrosoftThread());
                 t.start();
             } else if (swingerEvent.getSource() == close) {
-                System.exit(0);
+                instance.setVisible(false);
             } else if (swingerEvent.getSource() == hide) {
                 Frame.getInstance().setExtendedState(JFrame.ICONIFIED);
             }

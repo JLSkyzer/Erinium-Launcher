@@ -9,7 +9,7 @@ import java.net.URL;
 public class GetJsonObjetUrl {
 
     public static StringBuilder getNews() throws IOException {
-        URL url = new URL("https://erinium.000webhostapp.com/news.json");
+        URL url = new URL("https://eriniumadventure.fr/news.json");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setRequestMethod("GET");

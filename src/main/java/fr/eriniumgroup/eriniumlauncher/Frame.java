@@ -11,6 +11,8 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
@@ -21,14 +23,15 @@ public class Frame extends JFrame {
     private static File ramFile = new File(String.valueOf(Launcher.getPath()), "ram.txt");
     private static File saverFile = new File(String.valueOf(Launcher.getPath()), "user.stock");
     private static Saver saver = new Saver(saverFile);
-    public Frame() throws IOException {
+    public static boolean tryLunched = false;
+    public Frame() throws IOException, AWTException {
         instance = this;
-        this.setTitle("EriniumLauncher");
+        this.setTitle("JoblifeLauncher");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(800, 450);
         this.setUndecorated(true);
         this.setLocationRelativeTo(null);
-        this.setIconImage(getImage("icon.png"));
+        this.setIconImage(getImage("img.png"));
         this.setContentPane(new Connect());
 
         WindowMover mover = new WindowMover(this);
@@ -54,6 +57,7 @@ public class Frame extends JFrame {
         Launcher.directauth();
 
         launchRPC();
+        launchTraySystem();
     }
 
     public static void launchRPC(){
@@ -63,9 +67,9 @@ public class Frame extends JFrame {
         lib.Discord_Initialize(appID, handlers, true, "");
         DiscordRichPresence discordRichPresence = new DiscordRichPresence();
         discordRichPresence.startTimestamp = System.currentTimeMillis() / 1000;
-        discordRichPresence.details = "Joue à EriniumLauncher";
+        discordRichPresence.details = "Joue à Joblife Launcher";
         discordRichPresence.state = Launcher.authInfos.getUsername();
-        discordRichPresence.largeImageKey = "erinium";
+        discordRichPresence.largeImageKey = "joblife";
 
         lib.Discord_UpdatePresence(discordRichPresence);
     }
@@ -94,5 +98,41 @@ public class Frame extends JFrame {
 
     public static Saver getSaver() {
         return saver;
+    }
+
+    public static void launchTraySystem() throws IOException {
+        if (!tryLunched){
+            /*SystemTray systemTray = SystemTray.getSystemTray();
+            TrayIcon trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(getImage("img.png").toString()));
+            PopupMenu popupMenu = new PopupMenu();
+
+            MenuItem show = new MenuItem("Show");
+            show.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    instance.setVisible(true);
+                }
+            });
+            MenuItem exit = new MenuItem("Exit");
+            exit.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    System.exit(0);
+                }
+            });
+
+            popupMenu.add(show);
+            popupMenu.add(exit);
+
+            trayIcon.setPopupMenu(popupMenu);
+            try{
+                systemTray.remove(trayIcon);
+                systemTray.add(trayIcon);
+            }catch (AWTException e1){
+                e1.printStackTrace();
+            }
+
+            tryLunched = true;*/
+        }
     }
 }

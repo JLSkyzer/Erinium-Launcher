@@ -13,10 +13,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ import static fr.eriniumgroup.eriniumlauncher.Panel.*;
 public class Settings extends JPanel implements SwingerEventListener {
     private Image background = getImage("launcher.png");
     public static RamSelector ramSelector = new RamSelector(Frame.getRamFile());
+    private JButton openLauncherRoot = new JButton();
     private SColoredButton saveRamBtn = new SColoredButton(new Color(11, 33, 99), new Color(34, 56, 122));
     private STexturedButton settings = new STexturedButton(getBufferedImage("settings.png"), getBufferedImage("settings_hover.png"));
     private STexturedButton home = new STexturedButton(getBufferedImage("home.png"), getBufferedImage("home_hover.png"));
@@ -47,7 +47,7 @@ public class Settings extends JPanel implements SwingerEventListener {
         this.add(hide);
 
         Font titleFont = new Font(Font.SANS_SERIF, Font.BOLD, 30);
-        JLabel title = new JLabel("Séléctionnez votre ram");
+        JLabel title = new JLabel("Paramètre");
         title.setFont(titleFont);
         title.setSize(497, titleFont.getSize());
         title.setLocation(117, 44);
@@ -59,6 +59,13 @@ public class Settings extends JPanel implements SwingerEventListener {
         ram.setSize(300, 25);
         //g.fillRoundRect(117, 44, 497, 402, 20, 20);
 
+        JLabel ramtxt = new JLabel("Choisissez la ram");
+        ramtxt.setLocation(ram.getX(), ram.getY() - 36);
+        ramtxt.setSize(300, 18);
+        ramtxt.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
+        ramtxt.setForeground(Color.WHITE);
+        ramtxt.setHorizontalAlignment(JLabel.CENTER);
+
         JLabel label = new JLabel(ram.getValue() + " GB");
         label.setLocation(ram.getX(), ram.getY() - 18);
         label.setSize(300, 18);
@@ -66,12 +73,27 @@ public class Settings extends JPanel implements SwingerEventListener {
         label.setForeground(Color.RED);
         label.setHorizontalAlignment(JLabel.CENTER);
 
-        saveRamBtn.setBounds(ram.getX() + 75, ram.getY() + 50, 150, 30);
+        saveRamBtn.setBounds(ram.getX() + 75, 415, 150, 30);
         saveRamBtn.setForeground(Color.white);
         saveRamBtn.addEventListener(this);
 
+        openLauncherRoot.setBounds(117 + ((497 / 2) - 75), ram.getY() - 36 - 36, 150, 30);
+        openLauncherRoot.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+        openLauncherRoot.setText("Ouvrir dossier launcher");
+        openLauncherRoot.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    Desktop.getDesktop().open(new File(Launcher.getPath().toUri()));
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        this.add(openLauncherRoot);
+
         Font saveRamBtnFont = new Font(Font.SANS_SERIF, Font.BOLD, 24);
-        JLabel saveRam = new JLabel("Sauvegarder la ram");
+        JLabel saveRam = new JLabel("Sauvegarder");
         saveRam.setFont(saveRamBtnFont);
         saveRam.setBounds(saveRamBtn.getX(), saveRamBtn.getY(), 150, 30);
         saveRam.setForeground(Color.white);
@@ -88,6 +110,7 @@ public class Settings extends JPanel implements SwingerEventListener {
 
         this.add(ram);
         this.add(label);
+        this.add(ramtxt);
         this.add(saveRamBtn);
 
         settings.setBounds(5, Frame.getInstance().getHeight() / 2 - 30,60,60);
@@ -147,7 +170,7 @@ public class Settings extends JPanel implements SwingerEventListener {
                 throw new RuntimeException(e);
             }
         } else if (swingerEvent.getSource() == close) {
-            System.exit(0);
+            instance.setVisible(false);
         } else if (swingerEvent.getSource() == hide) {
             Frame.getInstance().setExtendedState(JFrame.ICONIFIED);
         } else if (swingerEvent.getSource() == logout) {

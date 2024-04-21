@@ -90,7 +90,8 @@ public class Panel extends JPanel implements SwingerEventListener {
         JPanel newspanel = new JPanel(new GridLayout());
         newspanel.setLayout(new BoxLayout(newspanel, BoxLayout.Y_AXIS));
         newspanel.setSize(450, 360);
-        newspanel.setBackground(hexToColor("22387A"));
+        newspanel.setBackground(getRGBA(43, 43, 43, 220));
+        //newspanel.
 
         //setBounds(137, 50, 460, 390)
         scrollPane.setBounds(127, 50, 480, 360);
@@ -144,9 +145,9 @@ public class Panel extends JPanel implements SwingerEventListener {
             separator.setMaximumSize(new Dimension(newspanel.getWidth(), 5));
             separator.setBorder( new FlatLineBorder( new Insets( 0, 0, 0, 0 ), Color.white, 2, 10));
 
-            titlemessage.setForeground(Color.white);
-            infomessage.setForeground(Color.white);
-            getmessage.setForeground(Color.white);
+            titlemessage.setForeground(hexToColor("3e69ed"));
+            infomessage.setForeground(hexToColor("3e69ed"));
+            getmessage.setForeground(hexToColor("3e69ed"));
 
             JPanel tempPanel = new JPanel(new GridLayout());
             tempPanel.setLayout(new BoxLayout(tempPanel, BoxLayout.Y_AXIS));
@@ -162,6 +163,13 @@ public class Panel extends JPanel implements SwingerEventListener {
             scrollPane.revalidate();
         }
         this.add(scrollPane);
+
+        JLabel dedicace = new JLabel("Merci à kaneto pour le fond d'écran");
+        dedicace.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
+        dedicace.setForeground(Color.white);
+        dedicace.setText("<html>" + "Merci à kaneto pour le fond d'écran" + "</html>");
+        dedicace.setBounds(2, 420 - dedicace.getHeight() - 1, 116, 28);
+        this.add(dedicace);
 
         progressBar.setBounds(scrollPane.getX(), scrollPane.getY() + scrollPane.getHeight() + 25, scrollPane.getWidth(), 10);
         progressBar.putClientProperty(FlatClientProperties.STYLE, "arc: 20");
@@ -182,13 +190,13 @@ public class Panel extends JPanel implements SwingerEventListener {
 
         g.drawImage(background, 0, 0, this.getWidth(), this.getHeight(), this);
 
-        g.setColor(getRGBA(43, 43, 43, 250));
+        g.setColor(getRGBA(43, 43, 43, 0));
         g.fillRoundRect(117, 44, 497, 402, 20, 20);
 
         Font titleFont = new Font(Font.SANS_SERIF, Font.BOLD, 30);
         g.setColor(hexToColor("#BFCFFF"));
         g.setFont(titleFont);
-        g.drawString("Erinium Launcher", 5, 30);
+        g.drawString("Joblife Launcher", 5, 30);
 
         g.setColor(getRGBA(47, 47, 47, 250));
         g.fillRoundRect(sideBtn.get(0).getX(), sideBtn.get(0).getY(), 60, sideBtn.get(sideBtn.size() - 1).getY() - sideBtn.get(0).getY() + 62, 20, 20);
@@ -228,7 +236,7 @@ public class Panel extends JPanel implements SwingerEventListener {
                 throw new RuntimeException(e);
             }
         } else if (swingerEvent.getSource() == close) {
-            System.exit(0);
+            instance.setVisible(false);
         } else if (swingerEvent.getSource() == hide) {
             Frame.getInstance().setExtendedState(JFrame.ICONIFIED);
         } else if (swingerEvent.getSource() == logout) {
