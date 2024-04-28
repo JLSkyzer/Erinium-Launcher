@@ -9,6 +9,7 @@ import fr.flowarg.flowupdater.utils.ModFileDeleter;
 import fr.flowarg.flowupdater.utils.UpdaterOptions;
 import fr.flowarg.flowupdater.versions.AbstractForgeVersion;
 import fr.flowarg.flowupdater.versions.ForgeVersionBuilder;
+import fr.flowarg.flowupdater.versions.ForgeVersionType;
 import fr.flowarg.flowupdater.versions.VanillaVersion;
 import fr.flowarg.openlauncherlib.NoFramework;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthResult;
@@ -96,7 +97,7 @@ public class Launcher {
         VanillaVersion vanillaVersion = new VanillaVersion.VanillaVersionBuilder().withName("1.20.1").build();
         UpdaterOptions options = new UpdaterOptions.UpdaterOptionsBuilder().build();
 
-        AbstractForgeVersion version = new ForgeVersionBuilder(ForgeVersionBuilder.ForgeVersionType.NEW).withFileDeleter(new ModFileDeleter(false)).withForgeVersion("47.2.20").withMods("https://eriniumadventure.fr/updater.php").build();
+        AbstractForgeVersion version = new ForgeVersionBuilder(ForgeVersionType.NEW).withFileDeleter(new ModFileDeleter(false)).withForgeVersion("47.2.20").withMods("https://eriniumadventure.fr/updater.php").build();
         Collection<ExternalFile> externalFile = ExternalFile.getExternalFilesFromJson("https://eriniumadventure.fr/updater.php");
 
         FlowUpdater updater = new FlowUpdater.FlowUpdaterBuilder().withVanillaVersion(vanillaVersion).withUpdaterOptions(options).withModLoaderVersion(version).withExternalFiles(externalFile).withProgressCallback(new IProgressCallback() {
